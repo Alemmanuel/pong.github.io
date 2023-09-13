@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Juego de Pong</title>
+    <style>
+        canvas {
+            background-color: black;
+            display: block;
+            margin: 0 auto;
+            color:;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="pong" width="800" height="400"></canvas>
+
+    <script>
+        var canvas = document.getElementById("pong");
+        var ctx = canvas.getContext("2d");
+
+        var anchoRaqueta = 10;
+        var altoRaqueta = 100;
+        var posYRaquetaIzquierda = canvas.height / 2 - altoRaqueta / 2;
+        var posYRaquetaDerecha = canvas.height / 2 - altoRaqueta / 2;
+        var velocidadRaqueta = 5;
+
+       
+        var tamanoPelota = 10;
+        var posXPelota = canvas.width / 2;
+        var posYPelota = canvas.height / 2;
+        var velocidadXPelota = 5;
+        var velocidadYPelota = 5;
+
+        var puntuacionJugadorIzquierdo = 0;
+        var puntuacionJugadorDerecho = 0;
+
+        function dibujar() {
+            ctx.fillStyle = "rgb(108, 248, 209)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = "red";
+            ctx.fillRect(0, posYRaquetaIzquierda, anchoRaqueta, altoRaqueta);
+
+            ctx.fillStyle = "blue";
+            ctx.fillRect(canvas.width - anchoRaqueta, posYRaquetaDerecha, anchoRaqueta, altoRaqueta);
+
+            ctx.fillStyle = "white"; // Cambia el color de la bola a blanco
+            ctx.beginPath();
+            ctx.arc(posXPelota, posYPelota, tamanoPelota, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = "chocolate"; // Cambia el color del marcador a blanco
+            ctx.font = "30px Comfortaa";
+            ctx.fillText(puntuacionJugadorIzquierdo + " - " + puntuacionJugadorDerecho, canvas.width / 2 - 30, 30);
+        }
+
+        function actualizar() {
+            if (posYRaquetaIzquierda >= 0 && posYRaquetaIzquierda + altoRaqueta <= canvas.height) {
+                if (teclaArribaPresionada) {
+                    posYRaquetaIzquierda -= velocidadRaqueta;
+                }
+                if (teclaAbajoPresionada) {
+                    posYRaquetaIzquierda += velocidadRaqueta;
+                }
+            }
+            if (posYRaquetaDerecha >= 0 && posYRaquetaDerecha + altoRaqueta <= canvas.height) {
+                if (teclaWPulsada) {
+                    posYRaquetaDerecha -= velocidadRaqueta;
+                }
+                if (teclaSPulsada) {
+                    posYRaquetaDerecha += velocidadRaqueta;
+                }
+            }
+
+            posXPelota += velocidadXPelota;
+            posYPelota += velocidadYPelota;
+
+            if (
+                (posXPelota - tamanoPelota <= anchoRaqueta && posYPelota >= posYRaquetaIzquierda && posYPelota <= posYRaquetaIzquierda + altoRaqueta) ||
+                (posXPelota + tamanoPelota >= canvas.width - anchoRaqueta && posYPelota >= posYRaquetaDerecha && posYPelota <= posYRaquetaDerecha + altoRaqueta)
+            ) {
+                velocidadXPelota = -velocidadXPelota;
+            }
+
+            if (posYPelota - tamanoPelota <= 0 || posYPelota + tamanoPelota >= canvas.height) {
+                velocidadYPelota = -velocidadYPelota;
+            }
+
+            if (posXPelota - tamanoPelota <= 0) {
+                puntuacionJugadorDerecho++;
+                reiniciarPelota();
+            } else if (posXPelota + tamanoPelota >= canvas.width) {
+                puntuacionJugadorIzquierdo++;
+                reiniciarPelota();
+            }
+        }
+
+        function reiniciarPelota() {
+            posXPelota = canvas.width / 2;
+            posYPelota = canvas.height / 2;
+            velocidadXPelota = 5;
+            velocidadYPelota = 5;
+        }
+
+        var teclaArribaPresionada = false;
+        var teclaAbajoPresionada = false;
+        var teclaWPulsada = false;
+        var teclaSPulsada = false;
+
+        document.addEventListener("keydown", function (evento) {
+            if (evento.key === "ArrowUp") {
+                teclaArribaPresionada = true;
+            }
+            if (evento.key === "ArrowDown") {
+                teclaAbajoPresionada = true;
+            }
+            if (evento.key === "w") {
+                teclaWPulsada = true;
+            }
+            if (evento.key === "s") {
+                teclaSPulsada = true;
+            }
+        });
+
+        document.addEventListener("keyup", function (evento) {
+            if (evento.key === "ArrowUp") {
+                teclaArribaPresionada = false;
+            }
+            if (evento.key === "ArrowDown") {
+                teclaAbajoPresionada = false;
+            }
+            if (evento.key === "w") {
+                teclaWPulsada = false;
+            }
+            if (evento.key === "s") {
+                teclaSPulsada = false;
+            }
+        });
+
+        function bucleJuego() {
+            dibujar();
+            actualizar();
+            requestAnimationFrame(bucleJuego);
+        }
+
+        bucleJuego();
+    </script>
+</body>
+</html>
